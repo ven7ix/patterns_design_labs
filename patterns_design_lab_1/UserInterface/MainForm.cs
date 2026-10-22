@@ -9,7 +9,8 @@ namespace patterns_design_lab_1
     {
         List<VisualCurve> visualCurves = [];
         readonly Random random = new();
-        ICurveVisualizationScheme? transform_scheme = null;
+        double angle = 0, scale = 1;
+        List<Func<ICurveVisualizationScheme, ICurveVisualizationScheme>> scheme_decorators = [];
 
         public MainForm()
         {
@@ -18,7 +19,7 @@ namespace patterns_design_lab_1
 
         void PanelGreenScheme_Paint(object sender, PaintEventArgs e)
         {
-            var scheme = new GreenScheme(e.Graphics);
+            var scheme = Decorate(new GreenScheme(e.Graphics));
 
             foreach (VisualCurve curve in visualCurves)
             {
@@ -28,7 +29,7 @@ namespace patterns_design_lab_1
 
         void PanelDashedScheme_Paint(object sender, PaintEventArgs e)
         {
-            var scheme = new DashedScheme(e.Graphics);
+            var scheme = Decorate(new DashedScheme(e.Graphics));
 
             foreach (VisualCurve curve in visualCurves)
             {
@@ -117,9 +118,38 @@ namespace patterns_design_lab_1
             SchemeSave_Click(new SVGScheme(PanelGreenScheme.Width, PanelGreenScheme.Height, Color.Black, "stoke-width=\"2\" stroke-dasharray=\"6 3\" stroke-linecap=\"round\""));
         }
 
+        ICurveVisualizationScheme Decorate(ICurveVisualizationScheme scheme)
+        {
+            foreach (var decorate in scheme_decorators)
+            {
+                scheme = decorate(scheme);
+            }
+
+            return scheme;
+        }
+
+        void RebuildDecortors()
+        {
+            scheme_decorators.Clear();
+
+            var center = new Point(PanelGreenScheme.Width / 2.0, PanelGreenScheme.Height / 2.0);
+
+            if (angle != 0)
+            {
+                scheme_decorators.Add(scheme => new RotateScheme(scheme, center, angle));
+            }
+            if (scale > 0 && scale != 1)
+            {
+                scheme_decorators.Add(scheme => new ScaleScheme(scheme, center, scale));
+            }
+
+            PanelGreenScheme.Invalidate();
+            PanelDashedScheme.Invalidate();
+        }
+
         void TextBoxRotationAngle_TextChanged(object sender, EventArgs e)
         {
-            double angle = 0;
+            angle = 0;
 
             if (TextBoxRotationAngle.Text != string.Empty)
             {
@@ -129,15 +159,12 @@ namespace patterns_design_lab_1
                 }
             }
 
-            var center = new Point(PanelGreenScheme.Width / 2.0, PanelGreenScheme.Height / 2.0);
-
-            PanelGreenScheme.Invalidate();
-            PanelDashedScheme.Invalidate();
+            RebuildDecortors();
         }
 
         void TextBoxScale_TextChanged(object sender, EventArgs e)
         {
-            double scale = 0;
+            scale = 1;
 
             if (TextBoxScale.Text != string.Empty)
             {
@@ -147,10 +174,7 @@ namespace patterns_design_lab_1
                 }
             }
 
-            var center = new Point(PanelGreenScheme.Width / 2.0, PanelGreenScheme.Height / 2.0);
-
-            PanelGreenScheme.Invalidate();
-            PanelDashedScheme.Invalidate();
+            RebuildDecortors();
         }
     }
 }
