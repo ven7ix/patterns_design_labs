@@ -7,18 +7,8 @@ namespace patterns_design_lab_1.Visual.Shemes
     {
         readonly ICurveVisualizationScheme component = component;
         readonly IPoint center = center;
-        double cos = 1, sin = 0;
-        public double Angle
-        {
-            get => angle;
-            set
-            {
-                angle = value;
-                double radian_angle = Angle * Math.PI / 180;
-                cos = Math.Cos(radian_angle);
-                sin = Math.Sin(radian_angle);
-            }
-        }
+        readonly double cos = Math.Cos(angle * Math.PI / 180);
+        readonly double sin = Math.Sin(angle * Math.PI / 180);
 
         public void DrawEndPoint(IPoint point)
         {

@@ -5,9 +5,9 @@ namespace patterns_design_lab_1.Visual.Shemes
 {
     public class ScaleScheme(ICurveVisualizationScheme component, IPoint center, double scale) : ICurveVisualizationScheme
     {
-        protected readonly ICurveVisualizationScheme component = component;
+        readonly ICurveVisualizationScheme component = component;
         readonly IPoint center = center;
-        public double Scale { get; set; } = scale;
+        readonly double scale = scale;
 
         public void DrawEndPoint(IPoint point)
         {
@@ -33,8 +33,8 @@ namespace patterns_design_lab_1.Visual.Shemes
 
         Point ScalePoint(IPoint point)
         {
-            double x = center.X + (point.X - center.X) * Scale;
-            double y = center.Y + (point.Y - center.Y) * Scale;
+            double x = center.X + (point.X - center.X) * scale;
+            double y = center.Y + (point.Y - center.Y) * scale;
 
             return new Point(x, y);
         }
