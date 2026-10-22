@@ -9,7 +9,8 @@ namespace patterns_design_lab_1
     {
         List<VisualCurve> visualCurves = [];
         readonly Random random = new();
-        readonly int rotation_angle = 5;
+        double angle = 0, scale = 1;
+        List<Func<ICurveVisualizationScheme, ICurveVisualizationScheme>> scheme_decorators = [];
 
         public MainForm()
         {
@@ -18,7 +19,7 @@ namespace patterns_design_lab_1
 
         void PanelGreenScheme_Paint(object sender, PaintEventArgs e)
         {
-            var scheme = new GreenScheme(e.Graphics);
+            var scheme = Decorate(new GreenScheme(e.Graphics));
 
             foreach (VisualCurve curve in visualCurves)
             {
@@ -28,7 +29,7 @@ namespace patterns_design_lab_1
 
         void PanelDashedScheme_Paint(object sender, PaintEventArgs e)
         {
-            var scheme = new DashedScheme(e.Graphics);
+            var scheme = Decorate(new DashedScheme(e.Graphics));
 
             foreach (VisualCurve curve in visualCurves)
             {
@@ -74,7 +75,7 @@ namespace patterns_design_lab_1
             return curves;
         }
 
-        Geometry.Point GenerateRandomPoint(int width, int height)
+        Point GenerateRandomPoint(int width, int height)
         {
             double x = random.NextDouble() * width;
             double y = random.NextDouble() * height;
@@ -117,45 +118,63 @@ namespace patterns_design_lab_1
             SchemeSave_Click(new SVGScheme(PanelGreenScheme.Width, PanelGreenScheme.Height, Color.Black, "stoke-width=\"2\" stroke-dasharray=\"6 3\" stroke-linecap=\"round\""));
         }
 
-        private void TextBoxRotationAngle_TextChanged(object sender, EventArgs e)
+        ICurveVisualizationScheme Decorate(ICurveVisualizationScheme scheme)
         {
-            if (!double.TryParse(TextBoxRotationAngle.Text, out double angle))
+            foreach (var decorate in scheme_decorators)
             {
-                return;
+                scheme = decorate(scheme);
             }
 
-            var center = new Point((double)PanelGreenScheme.Width / 2, (double)PanelGreenScheme.Height / 2);
+            return scheme;
+        }
 
-            for (int i = 0; i < visualCurves.Count; i++)
+        void RebuildDecortors()
+        {
+            scheme_decorators.Clear();
+
+            var center = new Point(PanelGreenScheme.Width / 2.0, PanelGreenScheme.Height / 2.0);
+
+            if (angle != 0)
             {
-                var rotate = new CurveRotate(visualCurves[i], angle, center);
-                visualCurves[i] = new VisualCurve(rotate, visualCurves[i].point_count);
+                scheme_decorators.Add(scheme => new RotateScheme(scheme, center, angle));
+            }
+            if (scale > 0 && scale != 1)
+            {
+                scheme_decorators.Add(scheme => new ScaleScheme(scheme, center, scale));
             }
 
             PanelGreenScheme.Invalidate();
             PanelDashedScheme.Invalidate();
         }
 
-        private void TextBoxScale_TextChanged(object sender, EventArgs e)
+        void TextBoxRotationAngle_TextChanged(object sender, EventArgs e)
         {
-            if (!double.TryParse(TextBoxScale.Text, out double scale))
+            angle = 0;
+
+            if (TextBoxRotationAngle.Text != string.Empty)
             {
-                return;
+                if (!double.TryParse(TextBoxRotationAngle.Text, out angle))
+                {
+                    return;
+                }
             }
 
-            if (scale <= 0.1)
+            RebuildDecortors();
+        }
+
+        void TextBoxScale_TextChanged(object sender, EventArgs e)
+        {
+            scale = 1;
+
+            if (TextBoxScale.Text != string.Empty)
             {
-                return;
+                if (!(double.TryParse(TextBoxScale.Text, out scale) && scale > 0.1))
+                {
+                    return;
+                }
             }
 
-            for (int i = 0; i < visualCurves.Count; i++)
-            {
-                var rotate = new CurveScale(visualCurves[i], scale);
-                visualCurves[i] = new VisualCurve(rotate, visualCurves[i].point_count);
-            }
-
-            PanelGreenScheme.Invalidate();
-            PanelDashedScheme.Invalidate();
+            RebuildDecortors();
         }
     }
 }
