@@ -9,7 +9,7 @@ namespace patterns_design_lab_1
     {
         List<VisualCurve> visualCurves = [];
         readonly Random random = new();
-        readonly int rotation_angle = 5;
+        ICurveVisualizationScheme? transform_scheme = null;
 
         public MainForm()
         {
@@ -74,7 +74,7 @@ namespace patterns_design_lab_1
             return curves;
         }
 
-        Geometry.Point GenerateRandomPoint(int width, int height)
+        Point GenerateRandomPoint(int width, int height)
         {
             double x = random.NextDouble() * width;
             double y = random.NextDouble() * height;
@@ -117,42 +117,37 @@ namespace patterns_design_lab_1
             SchemeSave_Click(new SVGScheme(PanelGreenScheme.Width, PanelGreenScheme.Height, Color.Black, "stoke-width=\"2\" stroke-dasharray=\"6 3\" stroke-linecap=\"round\""));
         }
 
-        private void TextBoxRotationAngle_TextChanged(object sender, EventArgs e)
+        void TextBoxRotationAngle_TextChanged(object sender, EventArgs e)
         {
-            if (!double.TryParse(TextBoxRotationAngle.Text, out double angle))
+            double angle = 0;
+
+            if (TextBoxRotationAngle.Text != string.Empty)
             {
-                return;
+                if (!double.TryParse(TextBoxRotationAngle.Text, out angle))
+                {
+                    return;
+                }
             }
 
-            var center = new Point((double)PanelGreenScheme.Width / 2, (double)PanelGreenScheme.Height / 2);
-
-            for (int i = 0; i < visualCurves.Count; i++)
-            {
-                var rotate = new CurveRotate(visualCurves[i], angle, center);
-                visualCurves[i] = new VisualCurve(rotate, visualCurves[i].point_count);
-            }
+            var center = new Point(PanelGreenScheme.Width / 2.0, PanelGreenScheme.Height / 2.0);
 
             PanelGreenScheme.Invalidate();
             PanelDashedScheme.Invalidate();
         }
 
-        private void TextBoxScale_TextChanged(object sender, EventArgs e)
+        void TextBoxScale_TextChanged(object sender, EventArgs e)
         {
-            if (!double.TryParse(TextBoxScale.Text, out double scale))
+            double scale = 0;
+
+            if (TextBoxScale.Text != string.Empty)
             {
-                return;
+                if (!(double.TryParse(TextBoxScale.Text, out scale) && scale > 0.1))
+                {
+                    return;
+                }
             }
 
-            if (scale <= 0.1)
-            {
-                return;
-            }
-
-            for (int i = 0; i < visualCurves.Count; i++)
-            {
-                var rotate = new CurveScale(visualCurves[i], scale);
-                visualCurves[i] = new VisualCurve(rotate, visualCurves[i].point_count);
-            }
+            var center = new Point(PanelGreenScheme.Width / 2.0, PanelGreenScheme.Height / 2.0);
 
             PanelGreenScheme.Invalidate();
             PanelDashedScheme.Invalidate();
