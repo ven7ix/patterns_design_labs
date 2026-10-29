@@ -13,14 +13,13 @@ namespace patterns_design_lab_1
         readonly Random random = new();
         double angle = 0, scale = 1;
         readonly List<Func<ICurveVisualizationScheme, ICurveVisualizationScheme>> scheme_decorators = [];
-        ICurveVisualizationScheme dashed_scheme;
+        readonly ICurveVisualizationScheme dashed_scheme;
 
         public MainForm()
         {
             InitializeComponent();
 
-            Graphics graphics = Get();
-            dashed_scheme = Decorate(new ShadowScheme(new DashedScheme(graphics), new Point(3, 3), graphics));
+            dashed_scheme = Decorate(new ShadowScheme(new DashedScheme(this, new Pen(Color.Black, 2)), new DashedScheme(this, new Pen(Color.Gray, 2)), new Point(3, 3)));
         }
 
         void PanelGreenScheme_Paint(object sender, PaintEventArgs e)
@@ -35,12 +34,11 @@ namespace patterns_design_lab_1
 
         void PanelDashedScheme_Paint(object sender, PaintEventArgs e)
         {
-            //Graphics graphics = Get();
-            //var scheme = Decorate(new ShadowScheme(new DashedScheme(graphics), new Point(3, 3)));
+            var scheme = Decorate(dashed_scheme);
 
             foreach (VisualCurve curve in visualCurves)
             {
-                curve.Draw(dashed_scheme);
+                curve.Draw(scheme);
             }
         }
 

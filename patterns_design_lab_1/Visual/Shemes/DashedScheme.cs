@@ -1,33 +1,32 @@
 ﻿using patterns_design_lab_1.Geometry;
+using patterns_design_lab_1.UserInterface;
 
 namespace patterns_design_lab_1.Visual.Shemes
 {
-    internal class DashedScheme(Graphics graphics) : ICurveVisualizationScheme
+    internal class DashedScheme(IGetGraphics graphics, Pen pen) : ICurveVisualizationScheme
     {
-        readonly Graphics graphics = graphics;
+        readonly IGetGraphics graphics = graphics;
+        readonly Pen pen = pen;
 
         public void DrawSegment(IPoint start, IPoint end)
         {
-            using var black_pen = new Pen(Color.Black, 2)
-            { 
-                DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
-            };
+            pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
 
-            graphics.DrawLine(black_pen, (float)start.X, (float)start.Y, (float)end.X, (float)end.Y);
+            graphics.Get().DrawLine(pen, (float)start.X, (float)start.Y, (float)end.X, (float)end.Y);
         }
 
         public void DrawStartPoint(IPoint point)
         {
-            using var black_pen = new Pen(Color.Black, 2);
+            pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
 
-            graphics.DrawRectangle(black_pen, (float)point.X, (float)point.Y, 10, 10);
+            graphics.Get().DrawRectangle(pen, (float)point.X, (float)point.Y, 10, 10);
         }
 
         public void DrawEndPoint(IPoint point)
         {
-            using var black_pen = new Pen(Color.Black, 2);
+            pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
 
-            graphics.DrawRectangle(black_pen, (float)point.X, (float)point.Y, 10, 10);
+            graphics.Get().DrawRectangle(pen, (float)point.X, (float)point.Y, 10, 10);
         }
     }
 }
