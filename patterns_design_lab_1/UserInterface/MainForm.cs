@@ -1,20 +1,26 @@
+using System.Drawing;
 using patterns_design_lab_1.Geometry;
+using patterns_design_lab_1.UserInterface;
 using patterns_design_lab_1.Visual;
 using patterns_design_lab_1.Visual.Shemes;
 using Point = patterns_design_lab_1.Geometry.Point;
 
 namespace patterns_design_lab_1
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IGetGraphics
     {
         List<VisualCurve> visualCurves = [];
         readonly Random random = new();
         double angle = 0, scale = 1;
-        List<Func<ICurveVisualizationScheme, ICurveVisualizationScheme>> scheme_decorators = [];
+        readonly List<Func<ICurveVisualizationScheme, ICurveVisualizationScheme>> scheme_decorators = [];
+        ICurveVisualizationScheme dashed_scheme;
 
         public MainForm()
         {
             InitializeComponent();
+
+            Graphics graphics = Get();
+            dashed_scheme = Decorate(new ShadowScheme(new DashedScheme(graphics), new Point(3, 3), graphics));
         }
 
         void PanelGreenScheme_Paint(object sender, PaintEventArgs e)
@@ -29,11 +35,12 @@ namespace patterns_design_lab_1
 
         void PanelDashedScheme_Paint(object sender, PaintEventArgs e)
         {
-            var scheme = Decorate(new DashedScheme(e.Graphics));
+            //Graphics graphics = Get();
+            //var scheme = Decorate(new ShadowScheme(new DashedScheme(graphics), new Point(3, 3)));
 
             foreach (VisualCurve curve in visualCurves)
             {
-                curve.Draw(scheme);
+                curve.Draw(dashed_scheme);
             }
         }
 
@@ -143,6 +150,7 @@ namespace patterns_design_lab_1
                 scheme_decorators.Add(scheme => new ScaleScheme(scheme, center, scale));
             }
 
+
             PanelGreenScheme.Invalidate();
             PanelDashedScheme.Invalidate();
         }
@@ -175,6 +183,12 @@ namespace patterns_design_lab_1
             }
 
             RebuildDecortors();
+        }
+
+        public Graphics Get()
+        {
+            Graphics graphics = Graphics.FromHwnd(PanelDashedScheme.Handle);
+            return graphics;
         }
     }
 }
