@@ -1,4 +1,3 @@
-using System.Drawing;
 using patterns_design_lab_1.Geometry;
 using patterns_design_lab_1.UserInterface;
 using patterns_design_lab_1.Visual;
@@ -12,6 +11,7 @@ namespace patterns_design_lab_1
         List<VisualCurve> visualCurves = [];
         readonly Random random = new();
         double angle = 0, scale = 1;
+        Point delta = new(0, 0);
         readonly List<Func<ICurveVisualizationScheme, ICurveVisualizationScheme>> scheme_decorators = [];
         readonly ICurveVisualizationScheme dashed_scheme;
 
@@ -48,6 +48,8 @@ namespace patterns_design_lab_1
             ButtonDashedSchemeSave.Enabled = true;
 
             visualCurves = GenerateCurves();
+
+            UpdateCurveChainComboBoxes();
 
             PanelGreenScheme.Invalidate();
             PanelDashedScheme.Invalidate();
@@ -147,7 +149,10 @@ namespace patterns_design_lab_1
             {
                 scheme_decorators.Add(scheme => new ScaleScheme(scheme, center, scale));
             }
-
+            if (delta.X != 0 || delta.Y != 0)
+            {
+                scheme_decorators.Add(scheme => new MoveBySceme(scheme, delta));
+            }
 
             PanelGreenScheme.Invalidate();
             PanelDashedScheme.Invalidate();
@@ -181,6 +186,60 @@ namespace patterns_design_lab_1
             }
 
             RebuildDecortors();
+        }
+
+        private void TextBoxMoveBy_TextChanged(object sender, EventArgs e)
+        {
+            delta = new Point(0, 0);
+
+            string[] coords = TextBoxMoveBy.Text.Split(";");
+
+            if (coords.Length == 2)
+            {
+                if (!(double.TryParse(coords[0], out double x)))
+                {
+                    return;
+                }
+
+                if (!(double.TryParse(coords[1], out double y)))
+                {
+                    return;
+                }
+
+                delta = new Point(x, y);
+            }
+
+            RebuildDecortors();
+        }
+
+        void UpdateCurveChainComboBoxes()
+        {
+            int[] curve_indices_first = new int[visualCurves.Count];
+            int[] curve_indices_second = new int[visualCurves.Count];
+            for (int i = 0; i < visualCurves.Count; i++)
+            {
+                curve_indices_first[i] = i;
+                curve_indices_second[i] = i;
+            }
+
+            ComboBoxCurveChainFirst.DataSource = curve_indices_first;
+            ComboBoxCurveChainSecond.DataSource = curve_indices_second;
+        }
+
+        private void ButtonApplyCurveChain_Click(object sender, EventArgs e)
+        {
+            var first_curve = visualCurves[ComboBoxCurveChainFirst.SelectedIndex];
+            var second_curve = visualCurves[ComboBoxCurveChainSecond.SelectedIndex];
+
+            var chained_curve = new VisualCurve(new Chain(first_curve, second_curve), first_curve.point_count);
+
+            visualCurves[ComboBoxCurveChainFirst.SelectedIndex] = chained_curve;
+            //visualCurves.RemoveAt(ComboBoxCurveChainFirst.SelectedIndex);
+
+            UpdateCurveChainComboBoxes();
+
+            PanelGreenScheme.Invalidate();
+            PanelDashedScheme.Invalidate();
         }
 
         public Graphics Get()
