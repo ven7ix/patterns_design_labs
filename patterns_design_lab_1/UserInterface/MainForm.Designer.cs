@@ -37,6 +37,12 @@
             TextBoxRotationAngle = new TextBox();
             label1 = new Label();
             label2 = new Label();
+            label3 = new Label();
+            TextBoxMoveBy = new TextBox();
+            label4 = new Label();
+            ComboBoxCurveChainFirst = new ComboBox();
+            ComboBoxCurveChainSecond = new ComboBox();
+            ButtonApplyCurveChain = new Button();
             SuspendLayout();
             // 
             // PanelGreenScheme
@@ -89,7 +95,7 @@
             // 
             // TextBoxScale
             // 
-            TextBoxScale.Location = new Point(723, 480);
+            TextBoxScale.Location = new Point(723, 337);
             TextBoxScale.Name = "TextBoxScale";
             TextBoxScale.Size = new Size(111, 23);
             TextBoxScale.TabIndex = 7;
@@ -106,7 +112,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(736, 252);
+            label1.Location = new Point(723, 264);
             label1.Name = "label1";
             label1.Size = new Size(81, 15);
             label1.TabIndex = 9;
@@ -115,17 +121,75 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(759, 452);
+            label2.Location = new Point(723, 319);
             label2.Name = "label2";
             label2.Size = new Size(33, 15);
             label2.TabIndex = 10;
             label2.Text = "scale";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(723, 372);
+            label3.Name = "label3";
+            label3.Size = new Size(53, 15);
+            label3.TabIndex = 11;
+            label3.Text = "move by";
+            // 
+            // TextBoxMoveBy
+            // 
+            TextBoxMoveBy.Location = new Point(723, 390);
+            TextBoxMoveBy.Name = "TextBoxMoveBy";
+            TextBoxMoveBy.Size = new Size(111, 23);
+            TextBoxMoveBy.TabIndex = 12;
+            TextBoxMoveBy.TextChanged += TextBoxMoveBy_TextChanged;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(723, 470);
+            label4.Name = "label4";
+            label4.Size = new Size(36, 15);
+            label4.TabIndex = 13;
+            label4.Text = "chain";
+            // 
+            // ComboBoxCurveChainFirst
+            // 
+            ComboBoxCurveChainFirst.FormattingEnabled = true;
+            ComboBoxCurveChainFirst.Location = new Point(693, 488);
+            ComboBoxCurveChainFirst.Name = "ComboBoxCurveChainFirst";
+            ComboBoxCurveChainFirst.Size = new Size(163, 23);
+            ComboBoxCurveChainFirst.TabIndex = 14;
+            // 
+            // ComboBoxCurveChainSecond
+            // 
+            ComboBoxCurveChainSecond.FormattingEnabled = true;
+            ComboBoxCurveChainSecond.Location = new Point(693, 517);
+            ComboBoxCurveChainSecond.Name = "ComboBoxCurveChainSecond";
+            ComboBoxCurveChainSecond.Size = new Size(163, 23);
+            ComboBoxCurveChainSecond.TabIndex = 15;
+            // 
+            // ButtonApplyCurveChain
+            // 
+            ButtonApplyCurveChain.Location = new Point(723, 546);
+            ButtonApplyCurveChain.Name = "ButtonApplyCurveChain";
+            ButtonApplyCurveChain.Size = new Size(111, 23);
+            ButtonApplyCurveChain.TabIndex = 16;
+            ButtonApplyCurveChain.Text = "apply";
+            ButtonApplyCurveChain.UseVisualStyleBackColor = true;
+            ButtonApplyCurveChain.Click += ButtonApplyCurveChain_Click;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1584, 861);
+            Controls.Add(ButtonApplyCurveChain);
+            Controls.Add(ComboBoxCurveChainSecond);
+            Controls.Add(ComboBoxCurveChainFirst);
+            Controls.Add(label4);
+            Controls.Add(TextBoxMoveBy);
+            Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(TextBoxRotationAngle);
@@ -153,5 +217,11 @@
         private TextBox TextBoxRotationAngle;
         private Label label1;
         private Label label2;
+        private Label label3;
+        private TextBox TextBoxMoveBy;
+        private Label label4;
+        private ComboBox ComboBoxCurveChainFirst;
+        private ComboBox ComboBoxCurveChainSecond;
+        private Button ButtonApplyCurveChain;
     }
 }

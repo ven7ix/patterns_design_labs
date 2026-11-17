@@ -1,7 +1,7 @@
 ﻿using patterns_design_lab_1.Geometry;
 using Point = patterns_design_lab_1.Geometry.Point;
 
-namespace patterns_design_lab_1.Visual.Shemes
+namespace patterns_design_lab_1.Visual.Schemes
 {
     public class ScaleScheme(ICurveVisualizationScheme component, IPoint center, double scale) : ICurveVisualizationScheme
     {
