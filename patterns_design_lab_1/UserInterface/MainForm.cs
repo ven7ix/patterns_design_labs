@@ -36,9 +36,18 @@ namespace patterns_design_lab_1
             }
         }
 
-        void PanelGreenScheme_Paint(object sender, PaintEventArgs e) => DrawCurves(CreateGreen, new GDIGraphics(e.Graphics));
+        void DrawLabeledCurves(Func<IGraphics, ICurveVisualizationScheme> create_scheme, IGraphics graphics)
+        {
+            for (int i = 0; i < visual_curves.Count; i++)
+            {
+                var scheme = Decorate(new LabelScheme(create_scheme(graphics), $"{i}", graphics));
+                visual_curves[i].Draw(scheme);
+            }
+        }
 
-        void PanelDashedScheme_Paint(object sender, PaintEventArgs e) => DrawCurves(CreateDashed, new GDIGraphics(e.Graphics));
+        void PanelGreenScheme_Paint(object sender, PaintEventArgs e) => DrawLabeledCurves(CreateGreen, new GDIGraphics(e.Graphics));
+
+        void PanelDashedScheme_Paint(object sender, PaintEventArgs e) => DrawLabeledCurves(CreateDashed, new GDIGraphics(e.Graphics));
 
         ICurveVisualizationScheme Decorate(ICurveVisualizationScheme scheme)
         {
