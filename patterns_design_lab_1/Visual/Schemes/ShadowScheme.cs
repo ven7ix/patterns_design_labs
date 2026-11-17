@@ -1,6 +1,6 @@
 ﻿using patterns_design_lab_1.Geometry;
 
-namespace patterns_design_lab_1.Visual.Shemes
+namespace patterns_design_lab_1.Visual.Schemes
 {
     internal class ShadowScheme(ICurveVisualizationScheme component, ICurveVisualizationScheme shadow_component, IPoint offset) : ICurveVisualizationScheme
     {

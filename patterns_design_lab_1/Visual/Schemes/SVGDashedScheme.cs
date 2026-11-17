@@ -1,21 +1,20 @@
-﻿using System.Globalization;
+﻿using patterns_design_lab_1.Geometry;
+using System.Globalization;
 using System.Text;
-using patterns_design_lab_1.Geometry;
 
-namespace patterns_design_lab_1.Visual.Shemes
+namespace patterns_design_lab_1.Visual.Schemes
 {
-    internal class SVGScheme(int width, int height, Color color, string segement_style) : ICurveVisualizationScheme
+    internal class SVGDashedScheme(int width, int height, Color color) : ICurveVisualizationScheme
     {
         readonly int width = width;
         readonly int height = height;
         readonly Color color = color;
-        readonly string segement_style = segement_style;
 
         readonly List<string> elements = [];
 
         public void DrawSegment(IPoint start, IPoint end)
         {
-            elements.Add($"""<line x1="{Format(start.X)}" y1="{Format(start.Y)}" x2="{Format(end.X)}" y2="{Format(end.Y)}" stroke="{ToHex(color)}" {segement_style} />""");
+            elements.Add($"""<line x1="{Format(start.X)}" y1="{Format(start.Y)}" x2="{Format(end.X)}" y2="{Format(end.Y)}" stroke="{ToHex(color)}" stoke-width=\"2\" stroke-dasharray=\"6 3\" stroke-linecap=\"round\" />""");
         }
 
         public void DrawStartPoint(IPoint point)
@@ -45,7 +44,7 @@ namespace patterns_design_lab_1.Visual.Shemes
             _ = file.AppendLine("""<?xml version="1.0" encoding="UTF-8"?>""");
             _ = file.AppendLine($"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}\">""");
 
-            foreach(string element in elements)
+            foreach (string element in elements)
             {
                 _ = file.AppendLine("\t" + element);
             }

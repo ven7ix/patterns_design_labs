@@ -1,28 +1,28 @@
 ﻿using patterns_design_lab_1.Geometry;
 
-namespace patterns_design_lab_1.Visual.Shemes
+namespace patterns_design_lab_1.Visual.Schemes
 {
-    internal class GreenScheme(Graphics graphics) : ICurveVisualizationScheme
+    internal class GreenScheme(IGraphics graphics) : ICurveVisualizationScheme
     {
-        readonly Graphics graphics = graphics;
+        readonly IGraphics graphics = graphics;
 
         public void DrawSegment(IPoint start, IPoint end)
         {
-            using Pen green_pen = new(Color.Green, 2);
+            using var green_pen = new Pen(Color.Green, 2);
 
             graphics.DrawLine(green_pen, (float)start.X, (float)start.Y, (float)end.X, (float)end.Y);
         }
 
         public void DrawStartPoint(IPoint point)
         {
-            using Pen green_pen = new(Color.Green, 2);
+            using var green_pen = new Pen(Color.Green, 2);
 
             graphics.DrawEllipse(green_pen, (float)point.X, (float)point.Y, 10, 10);
         }
 
         public void DrawEndPoint(IPoint point)
         {
-            using SolidBrush green_brush = new(Color.Green);
+            using var green_brush = new SolidBrush(Color.Green);
 
             graphics.FillPolygon(green_brush, [new PointF((float)point.X, (float)point.Y), new PointF((float)point.X + 10, (float)point.Y), new PointF((float)point.X + 5, (float)point.Y + 10)]);
         }

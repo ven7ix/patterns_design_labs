@@ -1,129 +1,44 @@
 using patterns_design_lab_1.Geometry;
-using patterns_design_lab_1.UserInterface;
 using patterns_design_lab_1.Visual;
-using patterns_design_lab_1.Visual.Shemes;
+using patterns_design_lab_1.Visual.CustomGraphics;
+using patterns_design_lab_1.Visual.Schemes;
 using Point = patterns_design_lab_1.Geometry.Point;
 
 namespace patterns_design_lab_1
 {
-    public partial class MainForm : Form, IGetGraphics
+    public partial class MainForm : Form
     {
-        List<VisualCurve> visualCurves = [];
+        List<VisualCurve> visual_curves = [];
         readonly Random random = new();
         double angle = 0, scale = 1;
         Point delta = new(0, 0);
         readonly List<Func<ICurveVisualizationScheme, ICurveVisualizationScheme>> scheme_decorators = [];
-        readonly ICurveVisualizationScheme dashed_scheme;
 
         public MainForm()
         {
             InitializeComponent();
-
-            dashed_scheme = Decorate(new ShadowScheme(new DashedScheme(this, new Pen(Color.Black, 2)), new DashedScheme(this, new Pen(Color.Gray, 2)), new Point(3, 3)));
         }
 
-        void PanelGreenScheme_Paint(object sender, PaintEventArgs e)
-        {
-            var scheme = Decorate(new GreenScheme(e.Graphics));
+        static ICurveVisualizationScheme CreateGreen(IGraphics graphics) => new GreenScheme(graphics);
 
-            foreach (VisualCurve curve in visualCurves)
+        static ICurveVisualizationScheme CreateDashed(IGraphics graphics) => new ShadowScheme(
+            new DashedScheme(graphics, new Pen(Color.Black, 2)),
+            new DashedScheme(graphics, new Pen(Color.Gray, 2)),
+            new Point(3, 3));
+
+        void DrawCurves(Func<IGraphics, ICurveVisualizationScheme> create_scheme, IGraphics graphics)
+        {
+            var scheme = Decorate(create_scheme(graphics));
+
+            foreach (VisualCurve curve in visual_curves)
             {
                 curve.Draw(scheme);
             }
         }
 
-        void PanelDashedScheme_Paint(object sender, PaintEventArgs e)
-        {
-            var scheme = Decorate(dashed_scheme);
+        void PanelGreenScheme_Paint(object sender, PaintEventArgs e) => DrawCurves(CreateGreen, new GDIGraphics(e.Graphics));
 
-            foreach (VisualCurve curve in visualCurves)
-            {
-                curve.Draw(scheme);
-            }
-        }
-
-        void ButtonGenerate_Click(object sender, EventArgs e)
-        {
-            ButtonGreenSchemeSave.Enabled = true;
-            ButtonDashedSchemeSave.Enabled = true;
-
-            visualCurves = GenerateCurves();
-
-            UpdateCurveChainComboBoxes();
-
-            PanelGreenScheme.Invalidate();
-            PanelDashedScheme.Invalidate();
-        }
-
-        List<VisualCurve> GenerateCurves()
-        {
-            int line_curves_count = random.Next(1, 4);
-            int bezier_curves_count = random.Next(1, 4);
-            var curves = new List<VisualCurve>(line_curves_count + bezier_curves_count);
-
-            for (int i = 0; i < line_curves_count; i++)
-            {
-                curves.Add(new VisualCurve(new Line(
-                    GenerateRandomPoint(600, 600),
-                    GenerateRandomPoint(600, 600)
-                    ), 2));
-            }
-
-            for (int i = 0; i < bezier_curves_count; i++)
-            {
-                curves.Add(new VisualCurve(new Bezier(
-                    GenerateRandomPoint(600, 600),
-                    GenerateRandomPoint(600, 600),
-                    GenerateRandomPoint(600, 600),
-                    GenerateRandomPoint(600, 600)
-                    ), 100));
-            }
-
-            return curves;
-        }
-
-        Point GenerateRandomPoint(int width, int height)
-        {
-            double x = random.NextDouble() * width;
-            double y = random.NextDouble() * height;
-
-            return new Geometry.Point(x, y);
-        }
-
-        void SchemeSave_Click(SVGScheme scheme)
-        {
-            if (visualCurves.Count == 0)
-            {
-                return;
-            }
-
-            using var dialog = new SaveFileDialog
-            {
-                Filter = "SVG file (*.svg)|*.svg"
-            };
-
-            if (dialog.ShowDialog(this) != DialogResult.OK)
-            {
-                return;
-            }
-
-            foreach (VisualCurve curve in visualCurves)
-            {
-                curve.Draw(scheme);
-            }
-
-            scheme.Save(dialog.FileName);
-        }
-
-        void ButtonGreenSchemeSave_Click(object sender, EventArgs e)
-        {
-            SchemeSave_Click(new SVGScheme(PanelGreenScheme.Width, PanelGreenScheme.Height, Color.Green, "stoke-width=\"2\" stroke-solid=\"6 3\" stroke-linecap=\"round\""));
-        }
-
-        void ButtonDashedSchemeSave_Click(object sender, EventArgs e)
-        {
-            SchemeSave_Click(new SVGScheme(PanelGreenScheme.Width, PanelGreenScheme.Height, Color.Black, "stoke-width=\"2\" stroke-dasharray=\"6 3\" stroke-linecap=\"round\""));
-        }
+        void PanelDashedScheme_Paint(object sender, PaintEventArgs e) => DrawCurves(CreateDashed, new GDIGraphics(e.Graphics));
 
         ICurveVisualizationScheme Decorate(ICurveVisualizationScheme scheme)
         {
@@ -157,6 +72,80 @@ namespace patterns_design_lab_1
             PanelGreenScheme.Invalidate();
             PanelDashedScheme.Invalidate();
         }
+
+        void ButtonGenerate_Click(object sender, EventArgs e)
+        {
+            ButtonGreenSchemeSave.Enabled = true;
+            ButtonDashedSchemeSave.Enabled = true;
+
+            visual_curves = GenerateCurves();
+
+            UpdateCurveChainComboBoxes();
+
+            PanelGreenScheme.Invalidate();
+            PanelDashedScheme.Invalidate();
+        }
+
+        List<VisualCurve> GenerateCurves()
+        {
+            int line_curves_count = random.Next(1, 4);
+            int bezier_curves_count = random.Next(1, 4);
+            var curves = new List<VisualCurve>(line_curves_count + bezier_curves_count);
+
+            for (int i = 0; i < line_curves_count; i++)
+            {
+                curves.Add(new VisualCurve(new Line(
+                    GenerateRandomPoint(600, 600),
+                    GenerateRandomPoint(600, 600)
+                    ), 2));
+            }
+
+            for (int i = 0; i < bezier_curves_count; i++)
+            {
+                curves.Add(new VisualCurve(new Bezier(
+                    GenerateRandomPoint(600, 600),
+                    GenerateRandomPoint(600, 600),
+                    GenerateRandomPoint(600, 600),
+                    GenerateRandomPoint(600, 600)
+                    ), 100));
+            }
+
+            return curves;
+
+            Point GenerateRandomPoint(int width, int height)
+            {
+                double x = random.NextDouble() * width;
+                double y = random.NextDouble() * height;
+
+                return new Geometry.Point(x, y);
+            }
+        }
+
+        void SaveSvg(Func<IGraphics, ICurveVisualizationScheme> create_scheme)
+        {
+            if (visual_curves.Count == 0)
+            {
+                return;
+            }
+
+            using var dialog = new SaveFileDialog
+            {
+                Filter = "SVG file (*.svg)|*.svg"
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            var svg_graphics = new SVGGraphics(PanelGreenScheme.Width, PanelGreenScheme.Height);
+            DrawCurves(create_scheme, svg_graphics);
+            svg_graphics.Save(dialog.FileName);
+        }
+
+        void ButtonGreenSchemeSave_Click(object sender, EventArgs e) => SaveSvg(CreateGreen);
+
+        void ButtonDashedSchemeSave_Click(object sender, EventArgs e) => SaveSvg(CreateDashed);
 
         void TextBoxRotationAngle_TextChanged(object sender, EventArgs e)
         {
@@ -214,9 +203,9 @@ namespace patterns_design_lab_1
 
         void UpdateCurveChainComboBoxes()
         {
-            int[] curve_indices_first = new int[visualCurves.Count];
-            int[] curve_indices_second = new int[visualCurves.Count];
-            for (int i = 0; i < visualCurves.Count; i++)
+            int[] curve_indices_first = new int[visual_curves.Count];
+            int[] curve_indices_second = new int[visual_curves.Count];
+            for (int i = 0; i < visual_curves.Count; i++)
             {
                 curve_indices_first[i] = i;
                 curve_indices_second[i] = i;
@@ -228,24 +217,26 @@ namespace patterns_design_lab_1
 
         private void ButtonApplyCurveChain_Click(object sender, EventArgs e)
         {
-            var first_curve = visualCurves[ComboBoxCurveChainFirst.SelectedIndex];
-            var second_curve = visualCurves[ComboBoxCurveChainSecond.SelectedIndex];
+            if (ComboBoxCurveChainFirst.SelectedIndex == ComboBoxCurveChainSecond.SelectedIndex)
+            {
+                return;
+            }
 
-            var chained_curve = new VisualCurve(new Chain(first_curve, second_curve), first_curve.point_count);
+            VisualCurve first_curve = visual_curves[ComboBoxCurveChainFirst.SelectedIndex];
+            VisualCurve second_curve = visual_curves[ComboBoxCurveChainSecond.SelectedIndex];
 
-            visualCurves[ComboBoxCurveChainFirst.SelectedIndex] = chained_curve;
-            //visualCurves.RemoveAt(ComboBoxCurveChainFirst.SelectedIndex);
+            first_curve.GetPoint(1, out IPoint end);
+            ICurve moved_second_curve = new MoveTo(second_curve, end);
+
+            int point_count = 2 * (first_curve.point_count + second_curve.point_count);
+            var chained_curve = new VisualCurve(new Chain(first_curve, moved_second_curve), point_count);
+
+            visual_curves[ComboBoxCurveChainFirst.SelectedIndex] = chained_curve;
+            visual_curves.RemoveAt(ComboBoxCurveChainSecond.SelectedIndex);
 
             UpdateCurveChainComboBoxes();
-
             PanelGreenScheme.Invalidate();
             PanelDashedScheme.Invalidate();
-        }
-
-        public Graphics Get()
-        {
-            Graphics graphics = Graphics.FromHwnd(PanelDashedScheme.Handle);
-            return graphics;
         }
     }
 }
